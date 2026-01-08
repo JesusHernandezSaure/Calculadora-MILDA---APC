@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Vitamina D - MILDA®</title>
+    <link rel="icon" type="image/png" href="D.png">
+    <style>
+        :root {
+            --milda-blue: #004a99;
+            --milda-dark-blue: #002d62;
+            --milda-gold: #c5a059; /* Dorado institucional */
+            --milda-gold-light: #e6c68a;
+            --bg-dark: #001a33;
+            --text-dark: #1e293b;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            /* Fondo inspirado en el concepto gráfico: Azul profundo con retícula */
+            background-color: var(--bg-dark);
+            background-image: 
+                linear-gradient(rgba(0, 74, 153, 0.2) 1px, transparent 1px),
+                linear-gradient(90px, rgba(0, 74, 153, 0.2) 1px, transparent 1px),
+                radial-gradient(circle at center, var(--milda-dark-blue) 0%, var(--bg-dark) 100%);
+            background-size: 40px 40px, 40px 40px, cover;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            background: rgba(255, 255, 255, 0.98);
+            width: 100%;
+            max-width: 650px;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border-top: 6px solid var(--milda-gold);
+            position: relative;
+            margin-top: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Espacio para Milda Logo */
+        .main-logo {
+            max-width: 180px;
+            margin-bottom: 15px;
+        }
+
+        /* Espacio para D3 Slogan */
+        .slogan-img {
+            max-width: 280px;
+            margin: 10px auto;
+            display: block;
+        }
+
+        h1 {
+            color: var(--milda-blue);
+            font-size: 1.4rem;
+            margin: 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--milda-gold);
+            padding-bottom: 10px;
+        }
+
+        .section-box {
+            margin-bottom: 20px;
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #fcfcfc;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--milda-blue);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+        }
+
+        .field { display: flex; flex-direction: column; }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #475569;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--milda-gold);
+            outline: none;
+            background: #fffdf5;
+        }
+
+        .bmi-display {
+            background: var(--milda-blue);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            border: 2px solid var(--milda-gold);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            background: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--milda-blue) 0%, var(--milda-dark-blue) 100%);
+            color: white;
+            border: 2px solid var(--milda-gold);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,74,153,0.3);
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background: var(--milda-dark-blue);
+        }
+
+        .results-container {
+            display: none;
+            margin-top: 25px;
+            padding: 25px;
+            border: 2px solid var(--milda-gold);
+            border-radius: 15px;
+            background: #fffdf7;
+            text-align: center;
+        }
+
+        .res-ui {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--milda-blue);
+            margin: 5px 0;
+        }
+
+        .res-caps {
+            font-weight: 700;
+            color: var(--white);
+            padding: 15px;
+            background: var(--milda-blue);
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 1px solid var(--milda-gold);
+        }
+
+        .hidden { display: none !important; }
+
+        .alert-text {
+            background: #fff1f2;
+            color: #be123c;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .footer-logo {
+            margin-top: 20px;
+            opacity: 0.7;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <header>
+        <img src="MILDA-LOGO.png" alt="MILDA Logo" class="main-logo">
+        
+        <img src="d3-slogan.png" alt="La D3 diferente, la D3 semanal" class="slogan-img">
+        
+        <h1>Calculadora de Vitamina D - MILDA&reg;</h1>
+    </header>
+
+    <div class="section-box">
+        <div class="section-title">👤 Perfil del Paciente</div>
+        <div class="grid">
+            <div class="field">
+                <label>Edad (Años)</label>
+                <input type="number" id="edad" value="30" step="0.1" oninput="toggleLogic()">
+            </div>
+            <div class="field">
+                <label>Sexo</label>
+                <select id="sexo" onchange="toggleLogic()">
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Nivel 25-OH-D</label>
+                <input type="number" id="basal" placeholder="Valor">
+            </div>
+            <div class="field">
+                <label>Unidad</label>
+                <select id="unidad">
+                    <option value="ngml">ng/mL</option>
+                    <option value="nmoll">nmol/L</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="adult-section">
+        <div class="section-box">
+            <div class="section-title">⚖️ Antropometría</div>
+            <div class="grid">
+                <div class="field">
+                    <label>Peso (kg)</label>
+                    <input type="number" id="peso" oninput="calcBMI()">
+                </div>
+                <div class="field">
+                    <label>Altura (cm)</label>
+                    <input type="number" id="altura" oninput="calcBMI()">
+                </div>
+            </div>
+            <div class="bmi-display" id="bmi-container">
+                IMC Calculado: <span id="bmi-val">--.-</span> kg/m²
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">📋 Comorbilidades y Medicación</div>
+            <div class="checkbox-group">
+                <div class="checkbox-item" id="wrap-embarazo">
+                    <input type="checkbox" id="embarazo"> <label for="embarazo">Embarazo</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="prediabetes"> <label for="prediabetes">Prediabetes</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="osteoporosis"> <label for="osteoporosis">Osteoporosis</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="anticonvulsivantes"> <label for="anticonvulsivantes">Anticonvulsivantes</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="mainCalculation()">Calcular Dosis MILDA&reg;</button>
+
+    <div class="results-container" id="results">
+        <div
