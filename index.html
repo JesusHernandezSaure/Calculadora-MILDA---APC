@@ -22,12 +22,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            /* FONDO CUADRICULAR AZUL Y DORADO */
-            background-color: #001a33;
-            background-image: 
-                linear-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(212, 175, 55, 0.1) 1px, transparent 1px);
-            background-size: 30px 30px; /* Tamaño de la cuadrícula */
+            background: linear-gradient(135deg, #001a33 0%, #003366 50%, #004a99 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -41,9 +36,8 @@
             background: var(--milda-blue);
             border-radius: 24px;
             box-shadow: var(--shadow-lg);
-            border: 2px solid var(--milda-gold);
+            border: 2px solid rgba(212, 175, 55, 0.3);
             overflow: hidden;
-            position: relative;
         }
 
         header {
@@ -132,6 +126,7 @@
             margin: 20px 30px;
         }
 
+        /* BLINDAJE DEL BOTÓN */
         #btn-calculate {
             width: calc(100% - 60px);
             margin: 10px 30px 30px 30px;
@@ -254,4 +249,115 @@
 
     <p id="lock-text" class="warning-msg">🔒 Complete los datos obligatorios para calcular.</p>
     
-    <button id="
+    <button id="btn-calculate" onclick="doCalculation()" disabled>Calcular Dosis MILDA®</button>
+
+    <div class="results-panel" id="res-panel" style="display: none;">
+        <div style="color: #002d5c; font-weight: 700;">Dosis Semanal Recomendada</div>
+        <div class="res-number"><span id="total-ui">0</span> <small>UI</small></div>
+        <div class="res-capsule" id="total-scheme">---</div>
+    </div>
+
+    <div class="footer-disclaimer">
+        <strong>EXELTIS - LABORATORIOS</strong>
+        Las dosis aquí calculadas son orientativas. Esta herramienta no reemplaza el criterio médico.
+    </div>
+</div>
+
+<script>
+    function handleLogic() {
+        const edad = document.getElementById('edad').value;
+        const sexo = document.getElementById('sexo').value;
+        const basal = document.getElementById('basal').value;
+        const adultDiv = document.getElementById('adult-section');
+        const btn = document.getElementById('btn-calculate');
+        const lockText = document.getElementById('lock-text');
+        const pregWrap = document.getElementById('preg-wrap');
+
+        document.getElementById('res-panel').style.display = 'none';
+
+        if (edad === "" || sexo === "") {
+            btn.disabled = true;
+            return;
+        }
+
+        const isPediatric = (edad < 18) || (edad == 18 && sexo === 'M');
+
+        if (isPediatric) {
+            adultDiv.classList.add('hidden');
+        } else {
+            adultDiv.classList.remove('hidden');
+            if (sexo === 'F' && edad >= 18 && edad <= 50) pregWrap.classList.remove('hidden');
+            else pregWrap.classList.add('hidden');
+        }
+
+        let imcValid = true;
+        if (!isPediatric) {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const talla = parseFloat(document.getElementById('talla').value) / 100;
+            if (peso > 0 && talla > 0.5) {
+                const imc = (peso / (talla * talla)).toFixed(1);
+                document.getElementById('bmi-val').innerText = imc;
+            } else {
+                imcValid = false;
+                document.getElementById('bmi-val').innerText = "--.-";
+            }
+        }
+
+        const basicData = (edad !== "" && sexo !== "" && basal !== "");
+        if (basicData && (isPediatric || imcValid)) {
+            btn.disabled = false;
+            lockText.classList.add('hidden');
+        } else {
+            btn.disabled = true;
+            lockText.classList.remove('hidden');
+        }
+    }
+
+    function doCalculation() {
+        const edad = parseFloat(document.getElementById('edad').value);
+        const sexo = document.getElementById('sexo').value;
+        const basal = parseFloat(document.getElementById('basal').value);
+        const unidad = document.getElementById('unidad').value;
+        const peso = parseFloat(document.getElementById('peso').value) || 0;
+        const talla = parseFloat(document.getElementById('talla').value) / 100;
+        const imc = peso / (talla * talla);
+
+        let nivel = (unidad === 'nmoll') ? basal / 2.5 : basal;
+        let diaria = 0;
+
+        if (edad < 18 || (edad == 18 && sexo === 'M')) {
+            if (nivel < 20) {
+                if (edad <= 0.5) diaria = 1000;
+                else if (edad <= 3) diaria = 2500;
+                else if (edad <= 8) diaria = 3000;
+                else diaria = 4000;
+            } else diaria = 400;
+        } else {
+            let d = [];
+            d.push(edad <= 70 ? 600 : 800);
+            if (imc >= 30) d.push(125 * imc);
+            if (document.getElementById('emb').checked) d = [document.getElementById('con').checked ? 3000 : 2000];
+            else {
+                if (document.getElementById('pre').checked) d.push(3600);
+                if (document.getElementById('con').checked) d.push(3000);
+                if (document.getElementById('ost').checked) d.push(2000);
+            }
+            diaria = Math.max(...d);
+        }
+
+        const semanal = Math.round(diaria * 7);
+        const C1 = 5600; const C2 = 25000;
+        let txt = "";
+
+        if (semanal < 12000) txt = `${Math.round(semanal/C1)} cáp. de 5,600 UI`;
+        else if (Math.abs(semanal - C2) < 5000) txt = `1 cáp. de 25,000 UI`;
+        else txt = `1 cáp. de 25,000 UI + ${Math.round((semanal-C2)/C1)} cáp. de 5,600 UI`;
+
+        document.getElementById('total-ui').innerText = semanal.toLocaleString();
+        document.getElementById('total-scheme').innerText = txt;
+        document.getElementById('res-panel').style.display = 'block';
+        document.getElementById('res-panel').scrollIntoView({behavior: 'smooth'});
+    }
+</script>
+</body>
+</html>
