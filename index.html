@@ -68,6 +68,7 @@
             outline: none;
         }
 
+        /* BOTÓN SIEMPRE VISIBLE */
         .btn-main {
             width: 100%;
             padding: 20px;
@@ -80,10 +81,16 @@
             font-size: 1rem;
             cursor: pointer;
             margin-top: 20px;
+            display: block; /* Asegura que siempre esté */
             transition: 0.3s;
         }
 
-        .btn-main:disabled { background: #334b66; color: #1a2a3a; cursor: not-allowed; opacity: 0.6; }
+        .btn-main:disabled { 
+            background: #334b66; 
+            color: #1a2a3a; 
+            cursor: not-allowed; 
+            opacity: 0.6; 
+        }
 
         .results {
             margin-top: 25px;
@@ -96,13 +103,26 @@
             border-top: 5px solid var(--milda-gold);
         }
 
-        .res-ui { font-size: 3.5rem; font-weight: 900; color: var(--milda-blue); }
+        .res-ui { font-size: 3.5rem; font-weight: 900; color: var(--milda-blue); line-height: 1; margin: 10px 0; }
+        
+        /* Referencia Médica IMC */
+        .imc-ref {
+            display: inline-block;
+            background: #eef2f7;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--milda-blue);
+            margin-bottom: 15px;
+            border: 1px solid #c2cfd9;
+        }
+
         .res-caps {
             background: var(--milda-dark);
             color: #fff;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 15px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -172,7 +192,8 @@
         <button id="btn-calc" class="btn-main" disabled onclick="showResults()">Calcular Esquema MILDA®</button>
 
         <div id="res-box" class="results">
-            <p style="text-transform: uppercase; font-size: 0.7rem; font-weight: 800;">Recomendación Semanal Sugerida</p>
+            <div id="imc-display" class="imc-ref hidden">Referencia Médica - IMC: <span id="imc-val">0</span> kg/m²</div>
+            <p style="text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #777;">Sugerencia de Suplementación Semanal</p>
             <div class="res-ui" id="ui-out">0 <small style="font-size: 1rem">UI</small></div>
             <div class="res-caps" id="caps-container">
                 <span>💊</span> <span id="caps-out">---</span>
@@ -184,10 +205,7 @@
 
 <script>
     const inputs = document.querySelectorAll('input, select');
-    
-    inputs.forEach(input => {
-        input.addEventListener('input', validateForm);
-    });
+    inputs.forEach(input => { input.addEventListener('input', validateForm); });
 
     function validateForm() {
         const edadVal = document.getElementById('edad').value;
@@ -197,7 +215,6 @@
         const adultFields = document.querySelectorAll('.adult-only');
         const embWrap = document.getElementById('wrap-emb');
 
-        // Resetear visualización de resultados si cambian datos
         document.getElementById('res-box').style.display = 'none';
 
         if (!edadVal) {
@@ -211,24 +228,14 @@
 
         if (isAdult) {
             adultFields.forEach(el => el.classList.remove('hidden'));
+            if (sexoVal === 'F' && edad <= 45) { embWrap.classList.remove('hidden'); } 
+            else { embWrap.classList.add('hidden'); document.getElementById('emb').checked = false; }
             
-            // Lógica visibilidad embarazo
-            if (sexoVal === 'F' && edad <= 45) {
-                embWrap.classList.remove('hidden');
-            } else {
-                embWrap.classList.add('hidden');
-                document.getElementById('emb').checked = false;
-            }
-
             const peso = document.getElementById('peso').value;
             const talla = document.getElementById('talla').value;
-            
-            // Botón habilita si tiene edad, sexo, basal, peso y talla
             btn.disabled = !(edadVal && sexoVal && basalVal && peso && talla);
         } else {
-            // Perfil Pediátrico
             adultFields.forEach(el => el.classList.add('hidden'));
-            // Botón habilita solo con edad, sexo y basal
             btn.disabled = !(edadVal && sexoVal && basalVal);
         }
     }
@@ -245,6 +252,7 @@
         const isAdult = (edad >= 19) || (edad >= 18 && sexo === 'F');
 
         if (!isAdult) {
+            document.getElementById('imc-display').classList.add('hidden');
             if (basal < 30) {
                 if (edad <= 0.5) diaria = 1000;
                 else if (edad <= 0.9) diaria = 1500;
@@ -253,14 +261,16 @@
                 else diaria = 4000;
             } else { diaria = 400; }
         } else {
-            let pool = [];
             const imc = peso / (talla * talla);
+            document.getElementById('imc-val').innerText = imc.toFixed(1);
+            document.getElementById('imc-display').classList.remove('hidden');
+
+            let pool = [];
             const isEmb = document.getElementById('emb').checked;
             const isPre = document.getElementById('pre').checked;
             const isOst = document.getElementById('ost').checked;
             const isCon = document.getElementById('con').checked;
 
-            // Dosis base adultos
             if (edad >= 19 && edad <= 69) pool.push(600);
             else if (edad >= 70 && edad <= 74) pool.push(800);
             else if (edad >= 75) pool.push(sexo === 'M' ? 800 : 900);
@@ -282,7 +292,7 @@
 
         const semanal = diaria * 7;
         const C1 = 5600; const C2 = 25000;
-        let mejor = { txt: "0 cápsulas de MILDA®", val: 0, diff: Infinity };
+        let mejor = { txt: "0 cápsulas", val: 0, diff: Infinity };
 
         if (semanal >= C1) {
             let opciones = [
@@ -291,10 +301,8 @@
             ];
             if (semanal > C2) {
                 let nMix = Math.round((semanal - C2) / C1);
-                let vMix = C2 + (nMix * C1);
-                opciones.push({ t: `1 cáp. de 25,000 UI + ${nMix} cáp. de 5,600 UI`, v: vMix });
+                opciones.push({ t: `1 cáp. de 25,000 UI + ${nMix} cáp. de 5,600 UI`, v: C2 + (nMix * C1) });
             }
-
             opciones.forEach(o => {
                 let d = Math.abs(semanal - o.v);
                 if (d < mejor.diff) mejor = { txt: o.t, val: o.v, diff: d };
