@@ -3,166 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MILDA® - Pro Dark Gold</title>
+    <title>MILDA® - Calculadora Profesional de Vitamina D</title>
     <link rel="icon" type="image/png" href="D.png">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        
         :root {
-            --bg-page: #001a33;      /* Azul muy oscuro para el fondo */
-            --bg-calc: #004a99;      /* Azul MILDA para el cuerpo */
-            --milda-gold: #c5a059;   /* Dorado Institucional */
-            --text-silver: #e2e8f0;  /* Plata para textos */
-            --input-dark: #003366;   /* Azul más oscuro para campos */
+            --milda-blue: #004a99;
+            --milda-gold: #d4af37;
+            --milda-silver: #e8eef3;
+            --dark-blue: #002d5c;
+            --light-gold: #f0e5c3;
             --white: #ffffff;
+            --shadow-lg: 0 20px 60px rgba(0, 42, 89, 0.4);
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background-color: var(--bg-page);
-            background-image: radial-gradient(circle at center, #002d62 0%, #001a33 100%);
-            color: var(--text-silver);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #001a33 0%, #003366 50%, #004a99 100%);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
         .calculator-body {
-            background-color: var(--bg-calc); /* Cuerpo azul solicitado */
+            max-width: 600px;
             width: 100%;
-            max-width: 550px;
-            padding: 35px;
-            border-radius: 30px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-            border: 2px solid var(--milda-gold);
-            position: relative;
+            background: var(--milda-blue);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            overflow: hidden;
         }
 
-        header { text-align: center; margin-bottom: 30px; }
-        .logo-milda { max-width: 150px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        header {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--milda-blue) 100%);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .logo-milda { max-width: 200px; margin-bottom: 15px; }
 
         h1 {
             color: var(--milda-gold);
-            font-size: 1rem;
+            font-size: 1.1rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            text-align: center;
-            margin: 15px 0;
-            border-bottom: 1px solid rgba(197, 160, 89, 0.3);
-            padding-bottom: 10px;
+            letter-spacing: 3px;
+            margin: 15px 0 8px 0;
         }
 
+        header p { color: var(--milda-silver); font-size: 0.85rem; }
+
         .group-box {
-            background: rgba(0, 0, 0, 0.15);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 20px 30px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .label-header {
-            color: var(--white);
-            font-size: 0.8rem;
-            font-weight: bold;
+            color: var(--milda-gold);
+            font-size: 0.9rem;
+            font-weight: 700;
             text-transform: uppercase;
-            margin-bottom: 15px;
-            display: block;
-            border-left: 3px solid var(--milda-gold);
-            padding-left: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         .field { display: flex; flex-direction: column; }
 
-        label { 
-            font-size: 0.75rem; 
-            margin-bottom: 5px; 
-            color: var(--text-silver); 
-            font-weight: 500; 
-        }
+        label { color: var(--milda-silver); font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; }
 
         input, select {
-            background: var(--input-dark);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             color: var(--white);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 10px;
             font-size: 1rem;
             outline: none;
-            transition: all 0.3s;
         }
 
         input:focus { border-color: var(--milda-gold); }
 
-        /* ESTADO DEL BOTÓN DORADO */
-        #btn-calculate {
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, #d4af37 0%, #c5a059 100%);
-            color: #000;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 900;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-top: 10px;
-            /* Bloqueo Inicial */
-            display: none; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-
-        #btn-calculate:hover { transform: scale(1.02); filter: brightness(1.1); }
-
         .bmi-display {
-            background: rgba(0,0,0,0.3);
-            color: var(--milda-gold);
-            padding: 12px;
-            border-radius: 8px;
+            background: rgba(212, 175, 55, 0.15);
+            border: 2px solid var(--milda-gold);
+            border-radius: 12px;
+            padding: 16px;
             text-align: center;
-            margin-top: 15px;
-            font-weight: 800;
-            font-size: 1.2rem;
+            margin-top: 16px;
         }
+
+        #bmi-val { color: var(--milda-gold); font-size: 2rem; font-weight: 800; }
 
         .check-item {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
             margin-bottom: 8px;
         }
 
-        .results-panel {
-            display: none;
-            margin-top: 25px;
-            padding: 25px;
-            border-radius: 20px;
-            background: var(--white);
-            color: var(--bg-calc);
-            text-align: center;
-            border-top: 6px solid var(--milda-gold);
-        }
-
-        .res-number { font-size: 3rem; font-weight: 900; margin: 5px 0; color: var(--bg-calc); }
-        .res-capsule {
-            background: var(--bg-calc);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
         .warning-msg {
-            color: var(--milda-gold);
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px dashed var(--milda-gold);
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
-            font-size: 0.8rem;
-            margin-bottom: 15px;
-            font-style: italic;
+            color: var(--milda-gold);
+            margin: 20px 30px;
+        }
+
+        /* BLINDAJE DEL BOTÓN */
+        #btn-calculate {
+            width: calc(100% - 60px);
+            margin: 10px 30px 30px 30px;
+            background: linear-gradient(135deg, var(--milda-gold) 0%, #c5a059 100%);
+            color: var(--dark-blue);
+            border: none;
+            border-radius: 14px;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #btn-calculate:disabled {
+            background: #4a4a4a;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.5;
+        }
+
+        .results-panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 25px 30px 30px 30px;
+            border-top: 6px solid var(--milda-gold);
+            text-align: center;
+        }
+
+        .res-number { color: var(--milda-blue); font-size: 3.5rem; font-weight: 900; }
+        .res-capsule {
+            background: var(--milda-blue);
+            color: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-weight: 700;
+        }
+
+        .footer-disclaimer {
+            padding: 20px 30px;
+            text-align: center;
+            color: var(--milda-silver);
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.2);
         }
 
         .hidden { display: none !important; }
@@ -174,6 +186,7 @@
     <header>
         <img src="milda-logo.png" alt="MILDA®" class="logo-milda">
         <h1>Calculadora de Suplementación</h1>
+        <p>Dosificación personalizada de Vitamina D</p>
     </header>
 
     <div class="group-box">
@@ -181,11 +194,11 @@
         <div class="grid">
             <div class="field">
                 <label>Edad (Años)</label>
-                <input type="number" id="edad" placeholder="--" oninput="handleLogic()">
+                <input type="number" id="edad" placeholder="--" oninput="handleLogic()" required>
             </div>
             <div class="field">
                 <label>Sexo</label>
-                <select id="sexo" onchange="handleLogic()">
+                <select id="sexo" onchange="handleLogic()" required>
                     <option value="">Elegir</option>
                     <option value="M">Masculino</option>
                     <option value="F">Femenino</option>
@@ -193,7 +206,7 @@
             </div>
             <div class="field">
                 <label>Vitamina D Basal</label>
-                <input type="number" id="basal" placeholder="0" oninput="handleLogic()">
+                <input type="number" id="basal" placeholder="0" oninput="handleLogic()" required>
             </div>
             <div class="field">
                 <label>Unidad</label>
@@ -220,33 +233,33 @@
             </div>
             <div class="bmi-display">IMC: <span id="bmi-val">--.-</span></div>
         </div>
-
+        
         <div class="group-box">
             <span class="label-header">Condiciones Especiales</span>
             <div class="grid">
                 <div class="check-item" id="preg-wrap">
                     <input type="checkbox" id="emb"> <label for="emb">Embarazo</label>
                 </div>
-                <div class="check-item">
-                    <input type="checkbox" id="pre"> <label for="pre">Prediabetes</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="ost"> <label for="ost">Osteoporosis</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="con"> <label for="con">Anticonvulsivos</label>
-                </div>
+                <div class="check-item"><input type="checkbox" id="pre"> <label for="pre">Prediabetes</label></div>
+                <div class="check-item"><input type="checkbox" id="ost"> <label for="ost">Osteoporosis</label></div>
+                <div class="check-item"><input type="checkbox" id="con"> <label for="con">Anticonvulsivos</label></div>
             </div>
         </div>
     </div>
 
-    <p id="lock-text" class="warning-msg">Para habilitar el cálculo, ingrese los datos obligatorios del paciente.</p>
-    <button id="btn-calculate" onclick="doCalculation()">Calcular Dosis MILDA®</button>
+    <p id="lock-text" class="warning-msg">🔒 Complete los datos obligatorios para calcular.</p>
+    
+    <button id="btn-calculate" onclick="doCalculation()" disabled>Calcular Dosis MILDA®</button>
 
-    <div class="results-panel" id="res-panel">
-        <div style="font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">Dosis Semanal Recomendada</div>
-        <div class="res-number"><span id="total-ui">0</span> <small style="font-size: 1rem;">UI</small></div>
+    <div class="results-panel" id="res-panel" style="display: none;">
+        <div style="color: #002d5c; font-weight: 700;">Dosis Semanal Recomendada</div>
+        <div class="res-number"><span id="total-ui">0</span> <small>UI</small></div>
         <div class="res-capsule" id="total-scheme">---</div>
+    </div>
+
+    <div class="footer-disclaimer">
+        <strong>EXELTIS - LABORATORIOS</strong>
+        Las dosis aquí calculadas son orientativas. Esta herramienta no reemplaza el criterio médico.
     </div>
 </div>
 
@@ -260,24 +273,23 @@
         const lockText = document.getElementById('lock-text');
         const pregWrap = document.getElementById('preg-wrap');
 
-        // Limpiar resultados al cambiar datos
         document.getElementById('res-panel').style.display = 'none';
 
-        if (edad === "" || sexo === "") return;
+        if (edad === "" || sexo === "") {
+            btn.disabled = true;
+            return;
+        }
 
-        // Determinar si es pediátrico (Menor de 18 o hombre de 18)
         const isPediatric = (edad < 18) || (edad == 18 && sexo === 'M');
 
         if (isPediatric) {
             adultDiv.classList.add('hidden');
         } else {
             adultDiv.classList.remove('hidden');
-            // Mostrar embarazo solo a mujeres fértiles
             if (sexo === 'F' && edad >= 18 && edad <= 50) pregWrap.classList.remove('hidden');
             else pregWrap.classList.add('hidden');
         }
 
-        // Calcular IMC
         let imcValid = true;
         if (!isPediatric) {
             const peso = parseFloat(document.getElementById('peso').value);
@@ -291,13 +303,12 @@
             }
         }
 
-        // Validar si el botón debe aparecer
         const basicData = (edad !== "" && sexo !== "" && basal !== "");
         if (basicData && (isPediatric || imcValid)) {
-            btn.style.display = 'block';
+            btn.disabled = false;
             lockText.classList.add('hidden');
         } else {
-            btn.style.display = 'none';
+            btn.disabled = true;
             lockText.classList.remove('hidden');
         }
     }
@@ -348,6 +359,5 @@
         document.getElementById('res-panel').scrollIntoView({behavior: 'smooth'});
     }
 </script>
-
 </body>
 </html>
