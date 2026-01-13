@@ -3,324 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MILDA® - Calculadora Profesional</title>
-    <link rel="icon" type="image/png" href="D.png">
+    <title>MILDA® - Calculadora de Vitamina D</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap');
-
         :root {
-            --milda-blue: #004a99;
-            --milda-dark: #001a35;
-            --milda-gold: #d4af37;
-            --milda-gold-bright: #ffcf40;
-            --milda-silver: #e2e8f0;
+            --bg-deep: #000814;
+            --card-bg: #00122e;
+            --gold: #f0c32d;
+            --silver: #E2E8F0;
+            --border: rgba(240, 195, 45, 0.3);
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #000b1a;
+            background-color: var(--bg-deep);
             background-image: 
-                linear-gradient(rgba(212, 175, 55, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(212, 175, 55, 0.15) 1px, transparent 1px);
-            background-size: 40px 40px;
-            color: var(--milda-silver);
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: var(--silver);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
         }
 
-        .calculator-card {
-            background: var(--milda-blue);
-            width: 100%;
-            max-width: 550px;
-            border-radius: 20px;
-            border: 2px solid var(--milda-gold);
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             overflow: hidden;
+            transition: all 0.5s ease;
         }
 
-        .header {
-            background: #fff;
-            padding: 25px;
-            text-align: center;
-            border-bottom: 3px solid var(--milda-gold);
-        }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
 
-        .logo { max-width: 200px; height: auto; }
+        .input-section { padding: 40px; border-right: 1px solid var(--border); }
+        .output-section { padding: 40px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; justify-content: center; }
 
-        .content { padding: 30px; }
+        .logo { width: 150px; margin-bottom: 20px; }
+        h2 { color: var(--gold); font-weight: 300; letter-spacing: 1px; }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        .field { display: flex; flex-direction: column; margin-bottom: 15px; }
-        label { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; color: var(--milda-silver); }
-
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--gold); }
         input, select {
-            background: var(--milda-dark);
-            border: 1px solid var(--milda-gold);
+            width: 100%;
             padding: 12px;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1rem;
+            background: #000;
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 4px;
             outline: none;
         }
+        input:focus { border-color: var(--gold); }
 
-        /* BOTÓN SIEMPRE VISIBLE */
-        .btn-main {
+        .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .checkbox-item { display: flex; align-items: center; font-size: 0.8rem; }
+        .checkbox-item input { width: auto; margin-right: 8px; }
+
+        button {
             width: 100%;
-            padding: 20px;
-            background: var(--milda-gold);
+            padding: 15px;
+            background: var(--gold);
             color: #000;
             border: none;
-            border-radius: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 1rem;
+            border-radius: 4px;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
-            display: block; /* Asegura que siempre esté */
+            text-transform: uppercase;
+            opacity: 0.5;
             transition: 0.3s;
         }
+        button:enabled { opacity: 1; cursor: pointer; }
+        button:hover:enabled { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(240, 195, 45, 0.4); }
 
-        .btn-main:disabled { 
-            background: #334b66; 
-            color: #1a2a3a; 
-            cursor: not-allowed; 
-            opacity: 0.6; 
-        }
-
-        .results {
-            margin-top: 25px;
-            background: #fff;
-            border-radius: 15px;
-            padding: 25px;
-            color: var(--milda-dark);
-            display: none;
-            text-align: center;
-            border-top: 5px solid var(--milda-gold);
-        }
-
-        .res-ui { font-size: 3.5rem; font-weight: 900; color: var(--milda-blue); line-height: 1; margin: 10px 0; }
-        
-        /* Referencia Médica IMC */
-        .imc-ref {
-            display: inline-block;
-            background: #eef2f7;
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 800;
-            color: var(--milda-blue);
-            margin-bottom: 15px;
-            border: 1px solid #c2cfd9;
-        }
-
-        .res-caps {
-            background: var(--milda-dark);
-            color: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .note { font-size: 0.75rem; color: #d63031; font-weight: 700; margin-top: 10px; text-align: left; }
-        .msg-adecuado { color: #004a99; font-weight: 800; font-size: 0.9rem; margin-top: 10px; }
-        .hidden { display: none !important; }
-
-        .comorb-box {
-            grid-column: span 2;
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
+        .result-box { text-align: center; }
+        .dose-value { font-size: 3rem; color: var(--gold); margin: 10px 0; }
+        .milda-suggestion { font-style: italic; color: #8892b0; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="calculator-card">
-    <div class="header">
-        <img src="milda-logo.png" alt="MILDA®" class="logo">
-    </div>
+<div class="container">
+    <div class="input-section">
+        <img src="MILDA-LOGO.png" alt="MILDA®" class="logo" onerror="this.style.display='none'">
+        <h2>Criterios Clínicos</h2>
+        
+        <div class="form-group">
+            <label>Sexo</label>
+            <select id="sexo" onchange="validar()">
+                <option value="">Seleccione...</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+            </select>
+        </div>
 
-    <div class="content">
-        <div class="grid">
-            <div class="field">
-                <label>Edad (Años)</label>
-                <input type="number" id="edad" step="0.1" placeholder="Ej: 30">
-            </div>
-            <div class="field">
-                <label>Sexo</label>
-                <select id="sexo">
-                    <option value="">--</option>
-                    <option value="M">Masculino</option>
-                    <option value="F">Femenino</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>Vitamina D Basal</label>
-                <input type="number" id="basal" placeholder="ng/mL">
-            </div>
+        <div class="form-group">
+            <label>Edad (Años)</label>
+            <input type="number" id="edad" step="0.1" oninput="validar()">
+        </div>
 
-            <div class="field adult-only hidden">
-                <label>Peso (kg)</label>
-                <input type="number" id="peso">
-            </div>
-            <div class="field adult-only hidden">
-                <label>Talla (cm)</label>
-                <input type="number" id="talla">
-            </div>
+        <div class="form-group">
+            <label>Vitamina D Basal (ng/mL)</label>
+            <input type="number" id="basal" oninput="validar()">
+        </div>
 
-            <div class="comorb-box adult-only hidden">
-                <label>Comorbilidades / Medicación</label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
-                    <div id="wrap-emb" class="hidden"><input type="checkbox" id="emb"> <span style="font-size: 0.8rem">Embarazo</span></div>
-                    <div><input type="checkbox" id="pre"> <span style="font-size: 0.8rem">Prediabetes</span></div>
-                    <div><input type="checkbox" id="ost"> <span style="font-size: 0.8rem">Osteoporosis</span></div>
-                    <div><input type="checkbox" id="con"> <span style="font-size: 0.8rem">Anticonvulsivos</span></div>
+        <div id="adult-fields" style="display: none;">
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Peso (kg)</label>
+                    <input type="number" id="peso" oninput="validar()">
+                </div>
+                <div style="flex: 1;">
+                    <label>Talla (cm)</label>
+                    <input type="number" id="talla" oninput="validar()">
                 </div>
             </div>
         </div>
 
-        <button id="btn-calc" class="btn-main" disabled onclick="showResults()">Calcular Esquema MILDA®</button>
+        <div class="checkbox-group">
+            <div class="checkbox-item"><input type="checkbox" id="prediabetes"> Prediabetes</div>
+            <div class="checkbox-item"><input type="checkbox" id="osteoporosis"> Osteoporosis</div>
+            <div class="checkbox-item"><input type="checkbox" id="anticonvulsivantes"> Anticonvulsivantes</div>
+            <div class="checkbox-item" id="preg-wrap" style="display:none;"><input type="checkbox" id="embarazo"> Embarazo</div>
+        </div>
 
-        <div id="res-box" class="results">
-            <div id="imc-display" class="imc-ref hidden">Referencia Médica - IMC: <span id="imc-val">0</span> kg/m²</div>
-            <p style="text-transform: uppercase; font-size: 0.7rem; font-weight: 800; color: #777;">Sugerencia de Suplementación Semanal</p>
-            <div class="res-ui" id="ui-out">0 <small style="font-size: 1rem">UI</small></div>
-            <div class="res-caps" id="caps-container">
-                <span>💊</span> <span id="caps-out">---</span>
-            </div>
-            <div id="notes-out"></div>
+        <button id="btnCalcular" disabled onclick="calcular()">Calcular Esquema MILDA®</button>
+    </div>
+
+    <div class="output-section">
+        <div id="resultado" class="result-box">
+            <p>Ingrese datos para generar informe...</p>
         </div>
     </div>
 </div>
 
 <script>
-    const inputs = document.querySelectorAll('input, select');
-    inputs.forEach(input => { input.addEventListener('input', validateForm); });
+    function validar() {
+        const edad = parseFloat(document.getElementById('edad').value);
+        const sexo = document.getElementById('sexo').value;
+        const basal = parseFloat(document.getElementById('basal').value);
+        const adultFields = document.getElementById('adult-fields');
+        const pregWrap = document.getElementById('preg-wrap');
+        const btn = document.getElementById('btnCalcular');
 
-    function validateForm() {
-        const edadVal = document.getElementById('edad').value;
-        const sexoVal = document.getElementById('sexo').value;
-        const basalVal = document.getElementById('basal').value;
-        const btn = document.getElementById('btn-calc');
-        const adultFields = document.querySelectorAll('.adult-only');
-        const embWrap = document.getElementById('wrap-emb');
+        // Mostrar/Ocultar campos
+        const esAdulto = (sexo === 'M' && edad >= 19) || (sexo === 'F' && edad >= 18);
+        adultFields.style.display = esAdulto ? 'block' : 'none';
+        pregWrap.style.display = (sexo === 'F' && edad >= 18 && edad <= 45) ? 'flex' : 'none';
 
-        document.getElementById('res-box').style.display = 'none';
-
-        if (!edadVal) {
-            btn.disabled = true;
-            adultFields.forEach(el => el.classList.add('hidden'));
-            return;
+        // Validación de bloqueo
+        let listo = !isNaN(edad) && sexo !== "" && !isNaN(basal);
+        if (esAdulto) {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const talla = parseFloat(document.getElementById('talla').value);
+            if (isNaN(peso) || isNaN(talla)) listo = false;
         }
 
-        const edad = parseFloat(edadVal);
-        const isAdult = (edad >= 19) || (edad >= 18 && sexoVal === 'F');
-
-        if (isAdult) {
-            adultFields.forEach(el => el.classList.remove('hidden'));
-            if (sexoVal === 'F' && edad <= 45) { embWrap.classList.remove('hidden'); } 
-            else { embWrap.classList.add('hidden'); document.getElementById('emb').checked = false; }
-            
-            const peso = document.getElementById('peso').value;
-            const talla = document.getElementById('talla').value;
-            btn.disabled = !(edadVal && sexoVal && basalVal && peso && talla);
-        } else {
-            adultFields.forEach(el => el.classList.add('hidden'));
-            btn.disabled = !(edadVal && sexoVal && basalVal);
-        }
+        btn.disabled = !listo;
     }
 
-    function showResults() {
+    function calcular() {
         const edad = parseFloat(document.getElementById('edad').value);
         const sexo = document.getElementById('sexo').value;
         const basal = parseFloat(document.getElementById('basal').value);
         const peso = parseFloat(document.getElementById('peso').value);
         const talla = parseFloat(document.getElementById('talla').value) / 100;
-        
+        const imc = peso / (talla * talla);
+
+        const isPreg = document.getElementById('embarazo').checked;
+        const isPred = document.getElementById('prediabetes').checked;
+        const isOst = document.getElementById('osteoporosis').checked;
+        const isAntic = document.getElementById('anticonvulsivantes').checked;
+
         let diaria = 0;
-        let notas = "";
-        const isAdult = (edad >= 19) || (edad >= 18 && sexo === 'F');
 
-        if (!isAdult) {
-            document.getElementById('imc-display').classList.add('hidden');
-            if (basal < 30) {
-                if (edad <= 0.5) diaria = 1000;
-                else if (edad <= 0.9) diaria = 1500;
-                else if (edad <= 3) diaria = 2500;
-                else if (edad <= 8) diaria = 3000;
-                else diaria = 4000;
-            } else { diaria = 400; }
+        if (basal >= 30) {
+            mostrarSuficiencia(); return;
+        }
+
+        // Lógica Pediátrica y Transición
+        if ((sexo === 'M' && edad < 19) || (sexo === 'F' && edad < 18 && !isPreg)) {
+            if (edad <= 0.5) diaria = 1000;
+            else if (edad <= 0.9) diaria = 1500;
+            else if (edad <= 3) diaria = 2500;
+            else if (edad <= 8) diaria = 3000;
+            else diaria = 4000;
         } else {
-            const imc = peso / (talla * talla);
-            document.getElementById('imc-val').innerText = imc.toFixed(1);
-            document.getElementById('imc-display').classList.remove('hidden');
-
-            let pool = [];
-            const isEmb = document.getElementById('emb').checked;
-            const isPre = document.getElementById('pre').checked;
-            const isOst = document.getElementById('ost').checked;
-            const isCon = document.getElementById('con').checked;
-
-            if (edad >= 19 && edad <= 69) pool.push(600);
-            else if (edad >= 70 && edad <= 74) pool.push(800);
-            else if (edad >= 75) pool.push(sexo === 'M' ? 800 : 900);
-
-            if (isEmb) {
-                pool = [isCon ? 3000 : 2000];
-                notas += "<div class='note'>Si la ganancia de peso es ≥ 20%, reforzar seguimiento.</div>";
+            // Lógica Adultos
+            if (isPreg) {
+                diaria = isAntic ? 3000 : 2000;
             } else {
-                if (imc >= 30) pool.push(125 * imc);
-                if (isPre) pool.push(3600);
-                if (isCon) pool.push(3000);
-                if (isOst) {
-                    pool.push(2000);
-                    notas += "<div class='note' style='color:#004a99'>Se recomienda tomar calcio.</div>";
-                }
+                let baseEdad = 0;
+                if (edad <= 69) baseEdad = 600;
+                else if (edad <= 74) baseEdad = 800;
+                else baseEdad = (sexo === 'F') ? 900 : 800;
+
+                let dosisPatologia = 0;
+                if (isPred) dosisPatologia = Math.max(dosisPatologia, 3600);
+                if (isAntic) dosisPatologia = Math.max(dosisPatologia, 3000);
+                if (isOst) dosisPatologia = Math.max(dosisPatologia, 2000);
+                if (imc >= 30) dosisPatologia = Math.max(dosisPatologia, imc * 125);
+
+                diaria = Math.max(baseEdad, dosisPatologia);
             }
-            diaria = Math.max(...pool);
         }
 
-        const semanal = diaria * 7;
-        const C1 = 5600; const C2 = 25000;
-        let mejor = { txt: "0 cápsulas", val: 0, diff: Infinity };
-
-        if (semanal >= C1) {
-            let opciones = [
-                { t: `${Math.round(semanal/C1)} cáp. de 5,600 UI`, v: Math.round(semanal/C1)*C1 },
-                { t: `1 cáp. de 25,000 UI`, v: C2 }
-            ];
-            if (semanal > C2) {
-                let nMix = Math.round((semanal - C2) / C1);
-                opciones.push({ t: `1 cáp. de 25,000 UI + ${nMix} cáp. de 5,600 UI`, v: C2 + (nMix * C1) });
-            }
-            opciones.forEach(o => {
-                let d = Math.abs(semanal - o.v);
-                if (d < mejor.diff) mejor = { txt: o.t, val: o.v, diff: d };
-            });
-        }
-
-        document.getElementById('ui-out').innerHTML = `${Math.round(semanal).toLocaleString()} <small>UI</small>`;
-        
-        if (mejor.val === 0) {
-            document.getElementById('caps-out').innerText = "0 cápsulas de MILDA®";
-            notas = "<div class='msg-adecuado'>El nivel de vitamina D es adecuado y no requiere suplementación.</div>" + notas;
-        } else {
-            document.getElementById('caps-out').innerText = mejor.txt;
-        }
-
-        document.getElementById('notes-out').innerHTML = notas;
-        document.getElementById('res-box').style.display = 'block';
+        const semanal = Math.round(diaria * 7);
+        mostrarResultado(semanal, imc);
     }
+
+    function mostrarSuficiencia() {
+        document.getElementById('resultado').innerHTML = `<h3>Resultado</h3><p>El nivel de vitamina D es adecuado y no requiere suplementación.</p>`;
+    }
+
+function mostrarResultado(total, imc) {
+    let imcHtml = !isNaN(imc) ? `<p>IMC: <strong>${imc.toFixed(1)}</strong></p>` : "";
+    const isPreg = document.getElementById('embarazo').checked;
+    
+    // Sugerencia MILDA
+    let caps = "";
+    if (total >= 25000) caps = "Se sugiere 1 cápsula de MILDA® 25,000 UI semanal.";
+    else if (total >= 5600) caps = "Se sugiere MILDA® 5,600 UI (ajustar frecuencia).";
+
+    document.getElementById('resultado').innerHTML = `
+        <h3>Dosis Recomendada</h3>
+        ${imcHtml}
+        <div class="dose-value">${total.toLocaleString()} UI</div>
+<div id="msg-embarazo" style="display:none; margin-top:15px; padding:10px; border-left:3px solid var(--gold); background: rgba(240, 195, 45, 0.1); font-size: 0.85rem; color: #ffebad;">
+    <strong>Nota Clínica:</strong> En pacientes gestantes, se recomienda estrecho seguimiento de niveles séricos si el incremento de peso supera el 20% del peso ideal pre-gestacional o las metas de ganancia según IMC basal.
+</div>
+        <p>por semana</p>
+        <div id="msg-embarazo-din" style="display:${isPreg ? 'block' : 'none'}; margin-top:15px; padding:10px; border-left:3px solid var(--gold); background: rgba(240, 195, 45, 0.1); font-size: 0.85rem; color: #ffebad; text-align:left;">
+            <strong>Nota Clínica:</strong> En pacientes gestantes, realizar seguimiento si el aumento de peso excede el 20% del peso ideal o los rangos de ganancia gestacional recomendados.
+        </div>
+        <div class="milda-suggestion">${caps}</div>
+    `;
+}
 </script>
 </body>
 </html>
